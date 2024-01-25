@@ -1,50 +1,46 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput, Button } from "react-native";
-//import axios from "axios"; // Make sure to import axios
+import { StyleSheet, View, Text, TextInput, Button, ActivityIndicator } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
 
-const Login = () => {
-  const [username, setUsername] = useState("");
+import { PWin_AUTH } from "../../../FirebaseConfig";
+
+const LogIn = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const auth = PWin_AUTH;
 
-  /*   const handleLogin = async () => {
-    // Perform API call to authenticate user
+  const logIn = async() => {
+    setLoading(true);
     try {
-      const response = await axios.post("https://your-api-url.com/auth/login", {
-        username,
-        password,
-      });
-
-      // Handle successful login
-      console.log("Login successful:", response.data);
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log(response);
     } catch (error) {
-      // Handle error during login
-      console.error("Login failed:", error.response.data);
+      console.log(error);
+      alert('เข้าสู่ระบบไม่สำเร็จ!' , error.message);
+    } finally {
+      setLoading(false);
     }
-  }; */
+  }
+
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    navigation.navigate("SignUpScreen");
+  }
 
   return (
     <View style={styles.container}>
-      <Text h4 style={styles.title}>
-        ลงชื่อเข้าใช้
-      </Text>
-      <Text>ชื่อผู้เข้าใช้</Text>
-
-      <TextInput
-        /*         value={username}
-        onChangeText={setUsername} */
-        styles={styles.inputContainer}
-      />
+      <Text h4 style={styles.title}> ลงชื่อเข้าใช้ </Text>
+      <Text> ชื่อผู้เข้าใช้ </Text>
+      <TextInput styles={styles.inputContainer} value={email} placeholder="Email" autoCapitalize="none" onChangeText={(text => setEmail(text))}/>
       <Text>รหัสผ่าน</Text>
-      <TextInput
-        /*         secureTextEntry
-        value={password}
-        onChangeText={setPassword} */
-        styles={styles.inputContainer}
-      />
+      <TextInput styles={styles.inputContainer} secureTextEntry={true} placeholder="password" autoCapitalize="none" onChangeText={(text => setPassword(text))}/>
       <Text>ลืมรหัสผ่าน?</Text>
-      <Button title="เข้าสู่ระบบ" /* onPress={handleLogin} */ />
-      <Text>ยังไม่มีบัญชี PWIN ?</Text>
-      <Text>ลงทะเบียน</Text>
+      {loading ? (<ActivityIndicator size="large" color="0000ff" />) : (
+      <Button title="เข้าสู่ระบบ" onPress={logIn} />)}
+      <Text>ยังไม่มีบัญชี PWIN ? <Text styles={styles.signUpLink} onPress={(handlePress)}>สร้างบัญชี</Text></Text>
     </View>
   );
 };
@@ -58,7 +54,6 @@ const styles = StyleSheet.create({
     
   },
   title: {
-
     marginBottom: 30,
     marginTop: 90,
     fontSize: 30,
@@ -75,6 +70,11 @@ const styles = StyleSheet.create({
   TextInput:{
     height:20,
   },
+  signUpLink:{
+    color: "#0048FF",
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+  },
 });
 
-export default Login;
+export default LogIn;
